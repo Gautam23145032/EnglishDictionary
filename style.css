@@ -1,0 +1,114 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  background: #556bff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.container {
+  background: #fff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 500px;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 25px;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.search-container {
+  position: relative;
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  border: 2px solid #556bff;
+  border-radius: 8px;
+  padding: 10px;
+  position: relative;
+}
+
+.search span {
+  color: #556bff;
+  margin-right: 8px;
+  cursor: pointer;
+}
+
+.search input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 16px;
+}
+
+.suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-top: none;
+  max-height: 200px;
+  overflow-y: auto;
+  list-style: none;
+  z-index: 1000;
+}
+
+.suggestions li {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+}
+
+.suggestions li:hover {
+  background-color: #f3f3f3;
+}
+
+.result {
+  margin-top: 30px;
+}
+
+.result h2 {
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.result p {
+  margin-bottom: 15px;
+  color: #666;
+}
+
+.result strong {
+  display: block;
+  margin-top: 10px;
+  color: #000;
+}
+
+button#randomWordBtn {
+  background-color: #4D59FB;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+button#randomWordBtn:hover {
+  background-color: #3748d3;
+}
