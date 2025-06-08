@@ -96,12 +96,32 @@ An interactive and modern **English Dictionary Web App** built using **HTML, CSS
 
 ---
 
-## 📸 Screenshots (Optional)
+## 📸 User Interface
 > ![image](https://github.com/user-attachments/assets/f89a0998-55aa-44d5-9f2a-03cfd341c32a)
 
 
 ---
+## 🧼 Clear Functionality
 
+- The ❌ button clears:
+  - The input field
+  - Previous search results
+  - Suggestions dropdown
+
+---
+## 🧪 Example Usage
+
+1. Type: `system`
+2. Suggestions appear: `system`, `syndrome`, `systematic`, etc.
+3. Press **Enter** or click `system`
+4. See:
+   - Definition: `A collection of organized things; a whole composed of relationships among its members.`
+   - Example: `"There are eight planets in the solar system."`
+   - Part of Speech: `noun`
+   - Pronunciation
+   - Synonyms: `arrangement`, `set up`, `structure`...
+
+---
 ## 🔐 Permissions
 
 - Requires browser permission for **notifications**
