@@ -1,6 +1,6 @@
 # 📚 English Dictionary Web App
 
-An interactive and modern **English Dictionary Web App** built using **HTML, CSS, and JavaScript** that allows users to search for word meanings, get synonyms, listen to pronunciations, fetch random words, view auto-suggestions, and receive daily word notifications via browser alerts.
+An interactive and modern **English Dictionary Web App** built using **HTML, CSS, and JavaScript** that allows users to search for **word meanings**, get **synonyms**, listen to **pronunciations**, fetch **random words**, view **auto-suggestions**, and receive **daily word notifications** via browser alerts.
 
 ---
 ## 🌐 Live Preview
