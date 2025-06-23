@@ -105,6 +105,13 @@ async function search(word) {
   if (cached) {
     const data = JSON.parse(cached);
     displayWordData(lowerWord, data);
+    addToCache(lowerWord, data);
+    if (!navigator.onLine) {
+      const offlineData = localStorage.getItem(`dict-${lowerWord}`);
+      if (offlineData) {
+        resultDiv.innerHTML += `<p style="color: orange;">📦 Offline mode: Showing cached result.</p>`;
+      } 
+    } 
     return;
   }
 
@@ -123,17 +130,17 @@ async function search(word) {
 
   } catch (error) {
     // ✅ Enhanced offline fallback
-    if (!navigator.onLine) {
-      const offlineData = localStorage.getItem(`dict-${lowerWord}`);
-      if (offlineData) {
-        displayWordData(lowerWord, JSON.parse(offlineData));
-        resultDiv.innerHTML += `<p style="color: orange;">📦 Offline mode: Showing cached result.</p>`;
-      } else {
-        resultDiv.innerHTML = `<p>⚠️ You are offline and this word is not in cache.</p>`;
-      }
-    } else {
+      if (!navigator.onLine) {
+        const offlineData = localStorage.getItem(`dict-${lowerWord}`);
+        if (!offlineData) {
+          resultDiv.innerHTML = `<p>⚠️ You are offline and this word is not in cache.</p>`;
+        } 
+    } 
+    else{
       resultDiv.innerHTML = `<p>⚠️ Error fetching the definition. Please try again later.</p>`;
     }
+      
+    
   }
 }
 
@@ -196,19 +203,28 @@ function displayWordData(word, data) {
 }
 function addToCache(key, value) {
   const maxItems = 50;
-  const keys = JSON.parse(localStorage.getItem("cachedWords") || "[]");
+  let keys = JSON.parse(localStorage.getItem("cachedWords") || "[]");
 
-  if (!keys.includes(key)) {
-    keys.push(key);
-    if (keys.length > maxItems) {
-      const removeKey = keys.shift();
-      localStorage.removeItem(`dict-${removeKey}`);
-    }
-    localStorage.setItem("cachedWords", JSON.stringify(keys));
+  // If the word is already in the list, remove it (so we can push to end)
+  const existingIndex = keys.indexOf(key);
+  if (existingIndex !== -1) {
+    keys.splice(existingIndex, 1);
   }
 
+  // Add to end (most recently used)
+  keys.push(key);
+
+  // If exceeds limit, remove least recently used (first item)
+  if (keys.length > maxItems) {
+    const removeKey = keys.shift();
+    localStorage.removeItem(`dict-${removeKey}`);
+  }
+
+  // Save updated list and new value
+  localStorage.setItem("cachedWords", JSON.stringify(keys));
   localStorage.setItem(`dict-${key}`, JSON.stringify(value));
 }
+
 
 
 // ========= INPUT EVENTS =========
