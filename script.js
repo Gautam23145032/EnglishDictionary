@@ -1,3 +1,51 @@
+// ========= TRIE DATA STRUCTURE =========
+class TrieNode {
+  constructor() {
+    this.children = {};
+    this.isEnd = false;
+  }
+}
+
+class Trie {
+  constructor() {
+    this.root = new TrieNode();
+  }
+
+  insert(word) {
+    let node = this.root;
+    for (let ch of word) {
+      if (!node.children[ch]) node.children[ch] = new TrieNode();
+      node = node.children[ch];
+    }
+    node.isEnd = true;
+  }
+
+  searchPrefix(prefix) {
+    let node = this.root;
+    for (let ch of prefix) {
+      if (!node.children[ch]) return null;
+      node = node.children[ch];
+    }
+    return node;
+  }
+
+  collect(node, prefix, result) {
+    if (result.length >= 5) return;
+    if (node.isEnd) result.push(prefix);
+    for (let ch in node.children) {
+      this.collect(node.children[ch], prefix + ch, result);
+    }
+  }
+
+  suggest(prefix) {
+    const node = this.searchPrefix(prefix);
+    const result = [];
+    if (node) this.collect(node, prefix, result);
+    return result;
+  }
+}
+
+// ========= UI ELEMENTS =========
 const searchInput = document.getElementById("searchInput");
 const resultDiv = document.getElementById("result");
 const suggestionsList = document.getElementById("suggestionsList");
@@ -5,7 +53,49 @@ const clearBtn = document.getElementById("clearBtn");
 const randomWordBtn = document.getElementById("randomWordBtn");
 
 let audio = null;
+const trie = new Trie();
 
+// ========= LOAD WORDS INTO TRIE =========
+async function loadDictionary() {
+  try {
+    const resp = await fetch("words.txt"); // must be hosted with your app
+    const text = await resp.text();
+    const words = text.split("\n").map(w => w.trim());
+    words.forEach(word => {
+      if (word) trie.insert(word);
+    });
+  } catch (err) {
+    console.error("Failed to load word list", err);
+  }
+}
+loadDictionary();
+
+// ========= FETCH SUGGESTIONS USING TRIE =========
+function fetchSuggestions(query) {
+  if (!query) {
+    clearSuggestions();
+    return;
+  }
+  const suggestions = trie.suggest(query.toLowerCase());
+  suggestionsList.innerHTML = "";
+  suggestions.forEach(item => {
+    const li = document.createElement("li");
+    li.textContent = item;
+    li.style.cursor = "pointer";
+    li.addEventListener("click", () => {
+      searchInput.value = item;
+      search(item);
+      clearSuggestions();
+    });
+    suggestionsList.appendChild(li);
+  });
+}
+
+function clearSuggestions() {
+  suggestionsList.innerHTML = "";
+}
+
+// ========= SEARCH DICTIONARY WORD =========
 async function search(word) {
   clearSuggestions();
   const url = `https://api.dictionaryapi.dev/api/v2/entries/en/${word}`;
@@ -24,15 +114,12 @@ async function search(word) {
     const partOfSpeech = meaning.partOfSpeech;
     const phonetics = entry.phonetics.find(p => p.text)?.text || '';
     const audioUrl = entry.phonetics.find(p => p.audio)?.audio || '';
-    const synonyms = definition.synonyms || meaning.synonyms || [];
+    const synonyms = definition.synonyms.length ? definition.synonyms : (meaning.synonyms || []);
 
     let synonymsHtml = "No synonyms available.";
     if (synonyms.length > 0) {
       synonymsHtml = synonyms
-        .map(
-          (syn) =>
-            `<span class="synonym" style="cursor:pointer; color:blue; text-decoration:underline; margin-right:6px;">${syn}</span>`
-        )
+        .map(syn => `<span class="synonym" style="cursor:pointer; color:blue; text-decoration:underline; margin-right:6px;">${syn}</span>`)
         .join('');
     }
 
@@ -51,65 +138,37 @@ async function search(word) {
       <p><strong>Synonyms:</strong> ${synonymsHtml}</p>
     `;
 
-    audio = new Audio(audioUrl);
-    const pronounceIconEl = document.getElementById("pronounceIcon");
-    if (pronounceIconEl) {
-      pronounceIconEl.addEventListener("click", () => {
+    // Audio play
+    if (audioUrl) {
+      audio = new Audio(audioUrl);
+      const pronounceIcon = document.getElementById("pronounceIcon");
+      pronounceIcon.addEventListener("click", () => {
         if (audio) {
           audio.play();
-          pronounceIconEl.style.color = "#999";
+          pronounceIcon.style.color = "#999";
           audio.onended = () => {
-            pronounceIconEl.style.color = "#4D59FB";
+            pronounceIcon.style.color = "#4D59FB";
           };
         }
       });
     }
 
-    const synonymElements = resultDiv.querySelectorAll('.synonym');
-    synonymElements.forEach((elem) => {
-      elem.addEventListener('click', () => {
-        const clickedWord = elem.textContent;
-        searchInput.value = clickedWord;
-        search(clickedWord);
+    // Synonym click
+    resultDiv.querySelectorAll(".synonym").forEach(el => {
+      el.addEventListener("click", () => {
+        const clicked = el.textContent;
+        searchInput.value = clicked;
+        search(clicked);
         clearSuggestions();
       });
     });
+
   } catch (error) {
     resultDiv.innerHTML = `<p>Error fetching the definition. Please try again later.</p>`;
   }
 }
 
-async function fetchSuggestions(query) {
-  if (!query) {
-    clearSuggestions();
-    return;
-  }
-
-  const url = `https://api.datamuse.com/sug?s=${query}`;
-  try {
-    const response = await fetch(url);
-    const data = await response.json();
-
-    suggestionsList.innerHTML = "";
-    data.slice(0, 5).forEach((item) => {
-      const li = document.createElement("li");
-      li.textContent = item.word;
-      li.addEventListener("click", () => {
-        searchInput.value = item.word;
-        search(item.word);
-        clearSuggestions();
-      });
-      suggestionsList.appendChild(li);
-    });
-  } catch (err) {
-    console.error("Error fetching suggestions:", err);
-  }
-}
-
-function clearSuggestions() {
-  suggestionsList.innerHTML = "";
-}
-
+// ========= INPUT EVENTS =========
 searchInput.addEventListener("keyup", (e) => {
   const word = e.target.value.trim();
   if (e.key === "Enter" && word !== "") {
@@ -130,8 +189,7 @@ randomWordBtn.addEventListener("click", () => {
   getRandomWords(2);
 });
 
-// Fetch 2 random advanced words
-// Fetch 2 random advanced words
+// ========= RANDOM WORDS =========
 async function getRandomWords(count = 2) {
   try {
     const resp = await fetch(`https://random-word-api.vercel.app/api?words=${count}`);
@@ -140,35 +198,25 @@ async function getRandomWords(count = 2) {
       search(word);
     });
   } catch (err) {
-    console.error("Failed to fetch random words", err);
     resultDiv.innerHTML = `<p>⚠️ Unable to fetch random words. Please try again later.</p>`;
   }
 }
 
-
-// Show 2 words per day as notification
+// ========= DAILY WORD NOTIFICATIONS =========
 async function showDailyWordsNotification() {
   const today = new Date().toDateString();
   const lastShown = localStorage.getItem("wordDayDate");
-
-  console.log("Today:", today);
-  console.log("Last shown:", lastShown);
-
   if (lastShown !== today) {
     localStorage.setItem("wordDayDate", today);
     const response = await fetch(`https://random-word-api.vercel.app/api?words=2`);
     const words = await response.json();
     if (Notification.permission === "granted") {
-      console.log("Showing notification with words:", words);
       new Notification("📚 Word of the Day", {
         body: `1. ${words[0]}\n2. ${words[1]}`,
       });
     }
-  } else {
-    console.log("Notification already shown today.");
   }
 }
-
 
 if ("Notification" in window) {
   Notification.requestPermission().then((perm) => {
