@@ -56,31 +56,13 @@ An interactive and modern **English Dictionary Web App** built using **HTML, CSS
 ## 📁 Project Structure
 
 ```
-📦 dictionary-app
-📦 streamoid-product-manager
-├── 📁 config
-│ └── db.js                # MongoDB connection logic
-├── 📁 controllers
-│ └── viewController.js    # Handles CSV upload, validation, search, rendering
-├── 📁 middleware
-│ ├── errorMiddleware.js   # 404 + global error handlers
-│ └── upload.js            # Multer config for CSV upload
-├── 📁 models
-│ └── productModel.js      # Product schema definition (Mongoose)
-├── 📁 routes
-│ └── viewRoutes.js        # Routes for upload, search, and render
-├── 📁 utils
-│ └── csvValidator.js      # Validates each CSV row before insertion
-├── 📁 views
-│ └── home.ejs             # EJS view for upload + search + listing UI
-├── 📁 public
-│ └── style.css            # Styling for UI
-├── 📁 uploads            # Temporary folder for uploaded CSVs (auto-deleted)
-├── app.js                 # Express app setup
-├── server.js              # App entrypoint (loads env, connects DB, starts server)
-├── .env                   # Contains MONGODB_URI and PORT
-└── package.json
-
+ dictionary-app
+│
+├── index.html        # Main HTML file
+├── style.css         # CSS file for styling
+├── script.js         # JavaScript file with full logic (Trie, UI, API)
+├── words.txt         # Local word list used for offline suggestions
+└── README.md         # Project documentation (you're reading it!)
 ```
 
 ---
